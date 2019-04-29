@@ -1,0 +1,7 @@
+Visitorius kuris surenka metodus is hierarchijos metodus pagal parametrų tipus
+
+
+Konkretus visitorius, turi params and results, pasiima iš konkrečios klasės ir suregistruoja su
+
+
+
