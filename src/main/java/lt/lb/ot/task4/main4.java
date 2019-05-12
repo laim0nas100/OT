@@ -5,26 +5,23 @@
  */
 package lt.lb.ot.task4;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.math.BigInteger;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import lt.lb.commons.ArrayOp;
-import lt.lb.commons.F;
 import lt.lb.commons.Log;
-import lt.lb.commons.containers.tuples.Tuple3;
-import lt.lb.commons.containers.tuples.Tuples;
 import lt.lb.commons.iteration.ReadOnlyIterator;
 import lt.lb.commons.reflect.proxy.InvocationHandlers;
 import lt.lb.commons.reflect.proxy.ProxyListenerBuilder;
 import lt.lb.ot.Def;
 import lt.lb.ot.task4.proxy.GenericCachingProxy;
+import lt.lb.ot.task4.proxy.chain.Invocation;
 import lt.lb.ot.task4.proxy.chain.InvocationChain;
 import lt.lb.ot.task4.proxy.chain.InvocationChainBuilder;
 import lt.lb.ot.task4.proxy.chain.InvocationChainHandlers;
 import lt.lb.ot.task4.proxy.chain.InvocationChainProxy;
+import lt.lb.ot.task4.proxy.relfdec.MethodDecorator;
 
 /**
  *
@@ -78,9 +75,15 @@ public class main4 {
         Log.print("Intermediate was invoked:" + counter.get());
 
         //Chain approach
+        MethodDecorator methDec = new MethodDecorator(objs -> null);
+        methDec.paramDecorator = (objs) -> {
+            long o = (long) objs[0];
+            return ArrayOp.asArray(o /2);
+        };
         InvocationChain chain = InvocationChainBuilder.of(
                 InvocationChainHandlers.loggingInvocation(s -> Log.print(s)),
                 InvocationChainHandlers.timerInvocation(),
+                Invocation.of(methDec),
                 InvocationChainHandlers.finalInvocation()
         );
         FibComputer newProxyInstance = (FibComputer) Proxy.newProxyInstance(
@@ -90,8 +93,9 @@ public class main4 {
         );
 
         Log.print("WITH CHAIN");
-        newProxyInstance.compute(100);
-        newProxyInstance.compute(1000);
+        BigInteger compute = newProxyInstance.compute(100);
+        BigInteger compute1 = newProxyInstance.compute(1000);
+        Log.println(compute, compute1);
 
         Log.close();
 

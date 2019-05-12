@@ -29,13 +29,14 @@ public class Visitors {
         try {
             Method m = visitorClass.getDeclaredMethod("visit", ob.getClass());
             m.invoke(visitor, ob);
+            //todo 
         } catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
             Method m = visitorClass.getMethod("visit", ob.getClass());
             m.invoke(visitor, ob);
         }
     }
 
-    public static <T extends Visitor> Visitor createDynamicVisitor(Class[] interfaces, Visitor[] implementations, T primary) {
+    public static Visitor createDynamicVisitor(Class[] interfaces, Visitor[] implementations, Visitor primary) {
         Set<MethodDescriptor> descriptors = new LinkedHashSet<>(); // preserve order
         Map<MethodDescriptor, MethodDecorator> decMap = new HashMap<>();
         Set<MethodDescriptor> primaryMethods = new HashSet<>();

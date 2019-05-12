@@ -22,18 +22,18 @@ import lt.lb.ot.task5.visitables.Visitable;
  */
 public class main5 {
 
-    public static void main(String... args) {
+    public static void main(String... args) throws Exception {
         Def.init.get();
         Log.main().disable = false;
         //populate an array of items
-        Visitable[] merge = ArrayOp.replicate(4, Visitable.class, Book::new, Cup::new, Pen::new, Phone::new);
+        Visitable[] merge = ArrayOp.replicate(4, Visitable.class, Book::new, Cup::new, Pen::new);
         Collections.shuffle(Arrays.asList(merge));
         //Phone is not registered for print
 
         Log.print("\nSimple case\n");
         ExplicitVisitor visitor = new PrintVisitor();
-        for (Visitable v : merge) {
-            v.accept(visitor);
+        for (Object v : merge) {
+            Visitors.acceptVisitor(v, visitor);
         }
 
         Log.print("\nreflective case\n");
@@ -48,16 +48,26 @@ public class main5 {
         ext.addOperation(Book.class, b -> Log.print("EXT", "Visiting book"));
         ext.addOperation(Cup.class, b -> Log.print("EXT", "Visiting Cup"));
         ext.addOperation(Cup.class, b -> Log.print("EXT", "Visiting Cup again"));
-        
-        
 
         for (Visitable v : merge) {
 //            ext.visit(v);
             v.accept(ext);
         }
 
-        Log.print("\n\n\n\n");
+        Log.print("\n\n\n\n DynamicVisitor");
 
+        
+        
+        //(predator, prey)
+        //(lion, rabbit)
+        
+        
+        //lion, prey
+        
+        Visitor dynamicVisitor = Visitors.createDynamicVisitor(ArrayOp.asArray(ExplicitVisitor.class), ArrayOp.asArray(new PrintVisitor()), ext);
+        for (Object v : merge) {
+            Visitors.acceptVisitor(v, dynamicVisitor);
+        }
 //        Visitor.combine(printReflectiveVisitor, ext);
         Log.close();
     }

@@ -6,6 +6,7 @@
 package lt.lb.ot.task4.proxy.chain;
 
 import java.lang.reflect.Method;
+import lt.lb.ot.task4.proxy.relfdec.MethodDecorator;
 
 /**
  *
@@ -13,4 +14,20 @@ import java.lang.reflect.Method;
  */
 public interface Invocation {
     Object invoke(Object callee, Method method, Object[] args, InvocationChain chain) throws Throwable;
+    
+    
+    public static Invocation of(MethodDecorator dec){
+        return new Invocation(){
+            @Override
+            public Object invoke(Object callee, Method method, Object[] args, InvocationChain chain) throws Throwable {
+                
+                Object[] decoratedArgs = dec.paramDecorator.apply(args);
+                //Decorator  method
+                dec.function.apply(decoratedArgs);
+                
+                
+                return dec.resultDecorator.apply(chain.invoke(callee, method, decoratedArgs));
+            }
+        };
+    }
 }
