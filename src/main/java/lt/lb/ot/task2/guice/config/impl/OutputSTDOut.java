@@ -19,8 +19,16 @@ import lt.lb.ot.task2.guice.config.OutputPrinter;
 public class OutputSTDOut implements OutputPrinter{
 
     @Inject
-    @Named("logStd")
+    @Named("logSTD")
     protected Log log;
+
+    public DateFormatter getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(DateFormatter dateFormat) {
+        this.dateFormat = dateFormat;
+    }
     
     
     @Inject

@@ -17,11 +17,22 @@ import org.springframework.beans.factory.annotation.Qualifier;
  * @author Lemmin
  */
 public class OutputFileOut implements OutputPrinter{
+    
+    @Qualifier("logSTD")
     protected Log log;
     
     
-    @Autowired
     private DateFormatter dateFormat;
+
+    public DateFormatter getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(DateFormatter dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+    
+    
     @Override
     public void printDouble(Double d) {
         Log.print(log, d);
@@ -56,7 +67,6 @@ public class OutputFileOut implements OutputPrinter{
     
     public void denit(){
         Log.print(log, "Close");
-        Log.close(log);
     }
     
     

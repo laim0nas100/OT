@@ -33,9 +33,14 @@ public class Main {
 //        OutputPrinter bean = inj.getInstance(Key.get(OutputPrinter.class,Names.named("std")));
 //        Log.print(bean);
 //        bean.printDate(new Date());
-        Log.print(new Date());
-        
-        Log.close(inj.getInstance(Key.get(Log.class, Names.named("logStd"))));
+        Log.print("Default:",new Date());
+        OutputPrinter instanceShort = inj.getInstance(Key.get(OutputPrinter.class,Names.named("fileShort")));
+        OutputPrinter instanceLong = inj.getInstance(Key.get(OutputPrinter.class,Names.named("fileLong")));
+        instanceShort.printDate(new Date());
+        instanceShort.printString("Short");
+        instanceLong.printDate(new Date());
+        instanceLong.printString("Long");
+        Log.close(inj.getInstance(Key.get(Log.class, Names.named("logSTD"))));
         Log.close(inj.getInstance(Key.get(Log.class, Names.named("logFile"))));
         Log.close();
     }

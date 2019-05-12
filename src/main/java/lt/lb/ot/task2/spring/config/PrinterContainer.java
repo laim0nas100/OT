@@ -18,7 +18,7 @@ public class PrinterContainer {
     
     //stub method
     @Lookup
-    public OutputPrinter getDefaultPrinter(){
+    public OutputPrinter requestPrinter(){
         return null;
     }
 }

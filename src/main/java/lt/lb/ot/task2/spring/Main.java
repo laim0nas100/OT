@@ -26,13 +26,14 @@ public class Main {
         ApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
         PrinterContainer bb = ctx.getBean(PrinterContainer.class);
         
-        bb.getDefaultPrinter().printDate(new Date());
-        OutputPrinter bean = ctx.getBean(OutputPrinter.class);
-        Log.print(bean);
-        bean.printDate(new Date());
+        for(int i = 0; i < 10; i++){
+            bb.requestPrinter().printDate(new Date());
+        }
+//        OutputPrinter bean = ctx.getBean(OutputPrinter.class);
+//        Log.print(bean);
+//        bean.printDate(new Date());
         Log.print(new Date());
         ConfigurableApplicationContext cctx = F.cast(ctx);
         cctx.close();
-        Log.close();
     }
 }

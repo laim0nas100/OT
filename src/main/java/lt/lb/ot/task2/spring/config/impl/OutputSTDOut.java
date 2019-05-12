@@ -18,12 +18,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
  */
 public class OutputSTDOut implements OutputPrinter{
 
+    @Autowired
+    @Qualifier("logSTD")
     protected Log log;
     
     
-    @Autowired
+    
     @Qualifier("long")
+    @Autowired
     private DateFormatter dateFormat;
+    
+    
     @Override
     public void printDouble(Double d) {
         Log.print(log, d);
@@ -58,7 +63,6 @@ public class OutputSTDOut implements OutputPrinter{
     
     public void denit(){
         Log.print(log, "Close");
-        Log.close(log);
     }
     
 }

@@ -26,6 +26,16 @@ public class OutputFileOut implements OutputPrinter{
     @Inject
     @Named("long")
     private DateFormatter dateFormat;
+
+    public DateFormatter getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(DateFormatter dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+    
+    
     @Override
     public void printDouble(Double d) {
         Log.print(log, d);
@@ -60,7 +70,6 @@ public class OutputFileOut implements OutputPrinter{
     
     public void denit(){
         Log.print("Close",getClass());
-        Log.close(log);
     }
     
     

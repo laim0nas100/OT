@@ -16,16 +16,15 @@ import com.google.inject.name.Names;
 import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
+import com.google.inject.util.Providers;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import lt.lb.commons.F;
 import lt.lb.commons.Log;
 import lt.lb.commons.Log.LogStream;
 import lt.lb.ot.task2.guice.config.impl.DateFormatterLong;
 import lt.lb.ot.task2.guice.config.impl.DateFormatterShort;
 import lt.lb.ot.task2.guice.config.impl.OutputFileOut;
 import lt.lb.ot.task2.guice.config.impl.OutputSTDOut;
-import lt.lb.ot.task2.guice.config.impl.PrinterContainerImpl;
 
 /**
  *
@@ -45,25 +44,36 @@ public class BasicModule extends AbstractModule {
     @Override
     protected void configure() {
 
-        
         this.bindConstant().annotatedWith(Names.named("dateSep")).to("-");
-        this.bind(Log.class).annotatedWith(Names.named("logFile")).toProvider(() -> {
-            Log log = new Log();
-            log.display = false;
-            try {
-                Log.changeStream(log, LogStream.FILE, "log.txt");
-            } catch (IOException ex) {
-                this.addError(ex);
-            }
-            return log;
-        }).asEagerSingleton();
-        this.bind(Log.class).annotatedWith(Names.named("logStd")).toProvider(() -> {
-            Log log = new Log();
-            return log;
-        }).asEagerSingleton();
 
         this.bind(OutputPrinter.class).annotatedWith(Names.named("std")).to(OutputSTDOut.class).asEagerSingleton();
-        this.bind(OutputPrinter.class).annotatedWith(Names.named("file")).to(OutputFileOut.class).asEagerSingleton();
+
+        this.install(new LogModule(Names.named("fileShort")) {
+            @Override
+            void bindConcreteLog() {
+                OutputFileOut printer = new OutputFileOut();
+                try {
+                    printer.setLog(BasicModule.logFile());
+                } catch (IOException ex) {
+                    this.addError(ex);
+                }
+                printer.setDateFormat(BasicModule.dateFormatterShort());
+                bind(OutputPrinter.class).toProvider(Providers.of(printer)); // guice auto-injects otherwise
+            }
+        });
+
+        this.install(new LogModule(Names.named("fileLong")) {
+            @Override
+            void bindConcreteLog() {
+                OutputFileOut printer = new OutputFileOut();
+
+                F.unsafeRunWithHandler(this::addError, () -> {
+                    printer.setLog(BasicModule.logFile());
+                });
+                printer.setDateFormat(BasicModule.dateFormatterLong());
+                bind(OutputPrinter.class).toProvider(Providers.of(printer));  // guice auto-injects otherwise
+            }
+        });
 
         //guice does not support lifecycle management, so no shutdown hook
         //init hax
@@ -106,6 +116,25 @@ public class BasicModule extends AbstractModule {
     @Named("long")
     public static DateFormatter dateFormatterLong() {
         return new DateFormatterLong("-");
+    }
+
+    @Provides
+    @Singleton
+    @Named("logFile")
+    public static Log logFile() throws IOException {
+        Log log = new Log();
+        log.display = false;
+        Log.changeStream(log, LogStream.FILE, "log.txt");
+        return log;
+    }
+
+    @Provides
+    @Singleton
+    @Named("logSTD")
+    public static Log logSTD() throws IOException {
+        Log log = new Log();
+        Log.changeStream(log, LogStream.STD_OUT);
+        return log;
     }
 
 }
