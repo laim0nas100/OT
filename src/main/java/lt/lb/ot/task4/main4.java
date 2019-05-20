@@ -75,14 +75,14 @@ public class main4 {
         FibComputer comp = new DecoratorMaker(new DefaultFibComputer(), FibComputer.class)
                 .decorate(new MemoizerDecorator())
                 .decorate(new TrampolineDecoratorDetached())
+                .decorate(new PlusDecorator())
                 .resolveInstance();
 
         
         FibComputer toInstance = chainBuilder.toInstance(comp, FibComputer.class);
         
         
-        Log.print(FibComputer.computer(toInstance, 30000));
-        Log.print(FibComputer.computer(toInstance, 30000));
+        Log.print(FibComputer.computer(toInstance, 2));
         Log.print(toInstance.plus(3));
         Log.close();
 

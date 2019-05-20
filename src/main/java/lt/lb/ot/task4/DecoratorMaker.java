@@ -9,11 +9,13 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lt.lb.commons.ArrayOp;
 import lt.lb.commons.F;
+import lt.lb.commons.Log;
 import lt.lb.commons.SafeOpt;
 import lt.lb.commons.containers.tuples.Tuple;
 import lt.lb.commons.containers.tuples.Tuples;
@@ -99,10 +101,10 @@ public class DecoratorMaker {
                     if (next.decMap.containsKey(desc)) {
                         Tuple<DecoratorContext, Method> get = next.decMap.get(desc);
                         Object[] newArgs = ArrayOp.addAt(args, 0, get.g1);
-//                        Log.println("", "Proceed dec", get.g2, next.decoratorObject, "with", Arrays.asList(newArgs));
+                        Log.println("", "Proceed dec", get.g2, next.decoratorObject, "with", Arrays.asList(newArgs));
                         return F.unsafeCall(() -> F.cast(get.g2.invoke(next.decoratorObject, newArgs)));
                     } else {
-//                        Log.println("", "Proceed def", next.defMap.get(desc), next.defaultObject, "with", Arrays.asList(args));
+                        Log.println("", "Proceed def", next.defMap.get(desc), next.defaultObject, "with", Arrays.asList(args));
                         return F.unsafeCall(() -> F.cast(next.defMap.get(desc).invoke(next.defaultObject, args)));
                     }
 
@@ -117,19 +119,27 @@ public class DecoratorMaker {
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 MethodDescriptor desc = new MethodDescriptor(method);
                 boolean invokeFound = false;
-                if (decMap.containsKey(desc)) {
-                    Tuple<DecoratorContext, Method> tuple = decMap.get(desc);
-                    Method decoratedMethod = tuple.g2;
-                    if (tuple.g1 != null && me.next.instance != null) {
-                        invokeFound = true;
-                        Object[] newArgs = ArrayOp.addAt(args, 0, tuple.g1);
-//                        Log.println("", "Invoke dec", decoratedMethod, me.decoratorObject, "with", Arrays.asList(newArgs));
-                        return decoratedMethod.invoke(me.decoratorObject, newArgs);
-                    }
+                DecoratorMaker node = me;
+                while (!invokeFound) {
+                    if (node.decMap.containsKey(desc)) {
+                        Tuple<DecoratorContext, Method> tuple = node.decMap.get(desc);
+                        Method decoratedMethod = tuple.g2;
+                        if (tuple.g1 != null && node.next.instance != null) {
+                            invokeFound = true;
+                            Object[] newArgs = ArrayOp.addAt(args, 0, tuple.g1);
+                            Log.println("", "Invoke dec", decoratedMethod, node.decoratorObject, "with", Arrays.asList(newArgs));
+                            return decoratedMethod.invoke(node.decoratorObject, newArgs);
+                        }
 
+                    }
+                    node = node.next;
+                    if(node == null){
+                        break;
+                    }
                 }
+
                 if (!invokeFound) {
-                    //                Log.println("", "Invoke", method, me.defaultObject, "with", Arrays.asList(args));
+                    Log.println("", "Invoke", method, me.defaultObject, "with", Arrays.asList(args));
                     return method.invoke(me.defaultObject, args);
                 }
                 throw new Error("Unreachable was reached");
