@@ -75,7 +75,7 @@ public class main1 {
     public static void printBasket(ProductBasket basket) {
         Stream<Product> of = Stream.of(basket.getProducts());
         double fullPrice = of.mapToDouble(p -> p.getPrice()).sum();
-        Log.printLines(ReadOnlyIterator.of(Stream.of(basket.getProducts()).map(m -> m.getClass().getSimpleName())));
+        Log.printLines(Stream.of(basket.getProducts()).map(m -> m.getClass().getSimpleName()).iterator());
         Log.print("Item count:" + basket.getProducts().length + " Price:" + fullPrice);
     }
     
