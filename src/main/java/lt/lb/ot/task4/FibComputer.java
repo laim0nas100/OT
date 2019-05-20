@@ -13,8 +13,8 @@ import java.math.BigInteger;
  */
 public interface FibComputer {
 
-    public default BigInteger compute(long iterations) {
-        return intermediate(0, iterations, BigInteger.ONE, BigInteger.ONE);
+    public static BigInteger computer(FibComputer cp, long iterations){
+        return cp.intermediate(0, iterations, BigInteger.ONE, BigInteger.ONE);
     }
 
     public BigInteger intermediate(long currentIteration, long iterations, BigInteger first, BigInteger second);

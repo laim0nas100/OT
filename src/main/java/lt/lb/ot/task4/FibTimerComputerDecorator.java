@@ -13,19 +13,18 @@ import lt.lb.commons.Timer;
  *
  * @author Lemmin
  */
-public class FibTimerComputerDecorator implements FibComputer {
+public class FibTimerComputerDecorator extends BaseFibComputerDecorator {
 
-    public FibComputer comp;
 
     public FibTimerComputerDecorator(FibComputer comp) {
-        this.comp = comp;
+        super(comp);
     }
 
 
     @Override
     public BigInteger intermediate(long currentIteration, long iterations, BigInteger first, BigInteger second) {
         Timer timer = new Timer();
-        BigInteger compute = comp.intermediate(currentIteration, iterations, first, second);
+        BigInteger compute = delegate().intermediate(currentIteration, iterations, first, second);
         Log.print("Computed in (nanos):" + timer.stopNanos());
         return compute;
     }

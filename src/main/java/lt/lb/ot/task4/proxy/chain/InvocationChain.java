@@ -13,6 +13,15 @@ import java.lang.reflect.Method;
  * @author Laimonas Beniušis
  */
 public interface InvocationChain extends InvocationHandler{
+    public static InvocationChain empty(){
+        return new InvocationChain() {
+            @Override
+            public Object invoke(Object callee, Method method, Object[] args) throws Throwable {
+                return null;
+            }
+        };
+    };
+    
     @Override
     public Object invoke(Object callee, Method method, Object[] args) throws Throwable;
 }

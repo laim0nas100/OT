@@ -6,8 +6,8 @@
 package lt.lb.ot.task4;
 
 import java.math.BigInteger;
-import lt.lb.commons.CallOrResult;
-import lt.lb.commons.F;
+import lt.lb.commons.Caller;
+import lt.lb.commons.Caller.CallerBuilder;
 
 /**
  *
@@ -23,21 +23,18 @@ public class TrampolineComputer implements FibComputer {
 
     @Override
     public BigInteger intermediate(long currentIteration, long iterations, BigInteger first, BigInteger second) {
-        return F.unsafeCall(() -> CallOrResult.iterative(-1, call(currentIteration, iterations, first, second)).get());
+        return call(currentIteration, iterations, first, second).resolve();
     }
 
-    private CallOrResult<BigInteger> call(long currentIteration, long iterations, BigInteger first, BigInteger second) {
+    private Caller<BigInteger> call(long currentIteration, long iterations, BigInteger first, BigInteger second) {
 
         if (currentIteration < iterations) {
             BigInteger newVal = comp.intermediate(0, 1, first, second);
-            return CallOrResult.returnIntermediate(newVal, () -> {
-                return call(currentIteration + 1, iterations, newVal, first);
-            });
+            return new CallerBuilder<BigInteger>()
+                    .toCall(args -> call(currentIteration + 1, iterations, newVal, first));
         } else {
-            return CallOrResult.returnValue(first);
+            return CallerBuilder.ofResult(first);
         }
     }
 
 }
-
-

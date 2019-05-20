@@ -6,8 +6,12 @@
 package lt.lb.ot.task4.proxy.chain;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
+import lt.lb.commons.ArrayOp;
 import lt.lb.commons.containers.Value;
 
 /**
@@ -16,6 +20,36 @@ import lt.lb.commons.containers.Value;
  */
 public class InvocationChainBuilder {
 
+    private List<Invocation> invocations = new ArrayList<>();
+    public InvocationChainBuilder(){
+        
+    }
+    
+    public InvocationChainBuilder with(Invocation inv){
+        this.invocations.add(inv);
+        return this;
+    }
+    
+    public InvocationChain toChain(){
+        return new SimpleInvocationChain(invocations.toArray(s -> new Invocation[s]));
+    }
+    
+    public <I> I toInstance(Class<I> mainInter){
+        return (I) Proxy.newProxyInstance(
+                this.getClass().getClassLoader(),
+                ArrayOp.asArray(mainInter),
+                new InvocationChainProxy(null, this.toChain())
+        );
+    }
+    
+    public <T extends I,I> I toInstance(Class<I> mainInter, T impl){
+        return (I) Proxy.newProxyInstance(
+                this.getClass().getClassLoader(),
+                ArrayOp.asArray(mainInter),
+                new InvocationChainProxy(impl, this.toChain())
+        );
+    }
+    
     public static InvocationChain of(Invocation... invocations) {
         return new SimpleInvocationChain(invocations);
     }

@@ -5,12 +5,21 @@
  */
 package lt.lb.ot.task4;
 
+import com.google.common.collect.Lists;
 import java.lang.reflect.Proxy;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lt.lb.commons.ArrayOp;
 import lt.lb.commons.Log;
+import lt.lb.commons.SafeOpt;
+import lt.lb.commons.containers.Value;
 import lt.lb.commons.iteration.ReadOnlyIterator;
 import lt.lb.commons.reflect.proxy.InvocationHandlers;
 import lt.lb.commons.reflect.proxy.ProxyListenerBuilder;
@@ -21,6 +30,7 @@ import lt.lb.ot.task4.proxy.chain.InvocationChain;
 import lt.lb.ot.task4.proxy.chain.InvocationChainBuilder;
 import lt.lb.ot.task4.proxy.chain.InvocationChainHandlers;
 import lt.lb.ot.task4.proxy.chain.InvocationChainProxy;
+import lt.lb.ot.task4.proxy.relfdec.ConcreteDecoratorHandler;
 import lt.lb.ot.task4.proxy.relfdec.MethodDecorator;
 
 /**
@@ -29,7 +39,7 @@ import lt.lb.ot.task4.proxy.relfdec.MethodDecorator;
  */
 public class main4 {
 
-    public static void main(String... args) throws Exception {
+    public static void main(String... mainArgs) throws Exception {
         Def.init.get();
         Log.main().disable = false;
 
@@ -53,49 +63,73 @@ public class main4 {
         FibComputer cached = (FibComputer) Proxy.newProxyInstance(classLoader, ArrayOp.asArray(FibComputer.class), new GenericCachingProxy(defFib));
         cached = new FibTimerComputerDecorator(cached);
 
-        //compute results
-        long iterations = 200000;
-        BigInteger[] arr = new BigInteger[9];
-        int i = 0;
-        arr[i++] = cached.compute(iterations);
-        arr[i++] = methodListener.compute(iterations);
-        arr[i++] = c.compute(iterations);
+        //NEW
+        MethodDecorator dec = new MethodDecorator(args -> {
+            String argString = Optional.ofNullable(args).map(m -> Arrays.asList(m)).orElse(Arrays.asList()).toString();
+            Log.print("ARGS:", argString);
+            return null;
+        });
 
-        arr[i++] = cached.compute(iterations);
-        arr[i++] = methodListener.compute(iterations);
-        arr[i++] = c.compute(iterations);
+        //for all methods
+        InvocationChainBuilder chainBuilder = new InvocationChainBuilder()
+                .with(InvocationChainHandlers.loggingInvocation(s -> Log.print(s)))
+                .with(InvocationChainHandlers.timerInvocation())
+                .with(dec.toInvocation())
+                .with(InvocationChainHandlers.finalInvocation());
 
-        arr[i++] = cached.compute(iterations / 4);
-        arr[i++] = methodListener.compute(iterations / 4);
-        arr[i++] = c.compute(iterations / 4);
+        ExtFibComputer main = new ExtDefaultFibComputer();
 
-        Log.printLines(ReadOnlyIterator.of(arr));
+        ExtraMethods extra1 = new ExtraMethods() {
+            @Override
+            public String catString() {
+                return "Modified x2";
+            }
 
-        //count how many times was intermediate invoked
-        Log.print("Intermediate was invoked:" + counter.get());
-
-        //Chain approach
-        MethodDecorator methDec = new MethodDecorator(objs -> null);
-        methDec.paramDecorator = (objs) -> {
-            long o = (long) objs[0];
-            return ArrayOp.asArray(o /2);
+            @Override
+            public String getString() {
+                return "Modified";
+            }
         };
-        InvocationChain chain = InvocationChainBuilder.of(
-                InvocationChainHandlers.loggingInvocation(s -> Log.print(s)),
-                InvocationChainHandlers.timerInvocation(),
-                Invocation.of(methDec),
-                InvocationChainHandlers.finalInvocation()
-        );
-        FibComputer newProxyInstance = (FibComputer) Proxy.newProxyInstance(
-                classLoader,
-                ArrayOp.asArray(FibComputer.class),
-                new InvocationChainProxy(new DefaultFibComputer(), chain)
-        );
+        FibComputer tramp = new TrampolineDecorator() {
+            @Override
+            protected FibComputer delegate() {
+                return main;
+            }
+
+        };
+
+        FibComputer memoizer = new AbstractFibComputerDecorator() {
+            HashMap<List, BigInteger> cache = new HashMap<>();
+
+            @Override
+            protected FibComputer delegate() {
+                return tramp;
+            }
+
+            @Override
+            public BigInteger intermediate(long currentIteration, long iterations, BigInteger first, BigInteger second) {
+                List list = Arrays.asList(currentIteration, iterations, first, second);
+                return cache.computeIfAbsent(list, key -> {
+                    return delegate().intermediate(currentIteration, iterations, first, second);
+                });
+            }
+        };
+
+        Object[] implementations = {
+            memoizer, extra1
+
+        };
+
+        //contruct decorator with default implementation and decorative implementations
+        ExtFibComputer constructFromClasses = ConcreteDecoratorHandler.constructFromClasses(main, ExtFibComputer.class, implementations);
+        //apply generic decorator methods
+        ExtFibComputer finalComp = chainBuilder.toInstance(ExtFibComputer.class, constructFromClasses);
 
         Log.print("WITH CHAIN");
-        BigInteger compute = newProxyInstance.compute(100);
-        BigInteger compute1 = newProxyInstance.compute(1000);
-        Log.println(compute, compute1);
+        BigInteger compute0 = FibComputer.computer(finalComp, 100);
+        BigInteger compute1 = FibComputer.computer(finalComp, 20000);
+        BigInteger compute2 = FibComputer.computer(finalComp, 20000); // should be fast, if memoized
+        Log.println("", compute0, compute1, compute2, finalComp.getString(), finalComp.catString());
 
         Log.close();
 

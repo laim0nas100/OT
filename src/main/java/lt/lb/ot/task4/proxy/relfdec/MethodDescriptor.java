@@ -7,7 +7,10 @@ package lt.lb.ot.task4.proxy.relfdec;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -16,14 +19,16 @@ import java.util.Objects;
 public class MethodDescriptor {
 
     public MethodDescriptor(Method method) {
-        this(method.getName(), method.getParameterTypes());
+        this(method.getName(), method.getParameterTypes(), method.getReturnType());
     }
 
-    public MethodDescriptor(String name, Class[] argTypes) {
+    public MethodDescriptor(String name, Class[] argTypes, Class returnType) {
         this.name = name;
         this.argTypes = argTypes;
+        this.returnType = returnType;
     }
 
+    public final Class returnType;
     public final String name;
     public final Class[] argTypes;
 
@@ -42,6 +47,9 @@ public class MethodDescriptor {
         if (!Objects.equals(this.name, other.name)) {
             return false;
         }
+        if (!Objects.equals(this.returnType, other.returnType)) {
+            return false;
+        }
         if (!Arrays.deepEquals(this.argTypes, other.argTypes)) {
             return false;
         }
@@ -50,10 +58,18 @@ public class MethodDescriptor {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 47 * hash + Objects.hashCode(this.name);
-        hash = 47 * hash + Arrays.deepHashCode(this.argTypes);
+        int hash = 3;
+        hash = 67 * hash + Objects.hashCode(this.returnType);
+        hash = 67 * hash + Objects.hashCode(this.name);
+        hash = 67 * hash + Arrays.deepHashCode(this.argTypes);
         return hash;
     }
+
+    @Override
+    public String toString() {
+        List<String> collect = Stream.of(argTypes).map(m->m.getSimpleName()).collect(Collectors.toList());
+        return "MethodDescriptor{" + "returnType=" + returnType.getSimpleName() + ", name=" + name + ", argTypes=" + collect + '}';
+    }
+
 
 }

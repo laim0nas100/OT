@@ -6,18 +6,17 @@ import java.math.BigInteger;
  *
  * @author Lemmin
  */
-public class IterativeDecorator implements FibComputer {
+public class IterativeDecorator extends BaseFibComputerDecorator {
 
-    public FibComputer comp;
 
     public IterativeDecorator(FibComputer comp) {
-        this.comp = comp;
+        super(comp);
     }
 
     @Override
     public BigInteger intermediate(long currentIteration, long iterations, BigInteger first, BigInteger second) {
         while (currentIteration < iterations) {
-            BigInteger newVal = comp.intermediate(0, 1, first, second);
+            BigInteger newVal = delegate().intermediate(0, 1, first, second);
             second = first;
             first = newVal;
             currentIteration++;

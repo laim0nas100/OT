@@ -23,10 +23,12 @@ public interface Invocation {
                 
                 Object[] decoratedArgs = dec.paramDecorator.apply(args);
                 //Decorator  method
-                dec.function.apply(decoratedArgs);
-                
-                
-                return dec.resultDecorator.apply(chain.invoke(callee, method, decoratedArgs));
+                Object result = dec.function.apply(decoratedArgs);
+                if(result == null){
+                    return dec.resultDecorator.apply(chain.invoke(callee, method, decoratedArgs));
+                }else{
+                    return dec.resultDecorator.apply(result);
+                }
             }
         };
     }
