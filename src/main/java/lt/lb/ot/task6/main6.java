@@ -10,7 +10,6 @@ import lt.lb.commons.F;
 import lt.lb.commons.Log;
 import lt.lb.ot.Def;
 import lt.lb.ot.task6.spring.Config;
-import lt.lb.ot.task6.spring.PrinterContainer;
 import lt.lb.ot.task6.spring.SecuredMethod;
 import lt.lb.ot.task6.spring.aspects.Countable;
 import org.springframework.context.ApplicationContext;
@@ -27,21 +26,29 @@ public class main6 {
         Def.init.get();
 
         ApplicationContext ctx = new AnnotationConfigApplicationContext(Config.class);
-        PrinterContainer bb = ctx.getBean(PrinterContainer.class);
 
-        for (int i = 0; i < 10; i++) {
-            bb.requestPrinter().printDate(new Date());
-        }
-        SecuredMethod action = ctx.getBean("act2", SecuredMethod.class);
-        if(action instanceof Countable){
-            Countable c = F.cast(action);
+        SecuredMethod action1 = ctx.getBean("act1", SecuredMethod.class);
+        if (action1 instanceof Countable) {
+            Countable c = F.cast(action1);
             c.inc();
-            Log.print("Count:",c.getCount());
+            Log.print("Count:", c.getCount());
         }
         for (int i = 0; i < 3; i++) {
-            action.securedAccess("admin", "1337", 10);
+            action1.securedAccess("admin", "1337", 10);
+            action1.securedAccess("adminas", "7331", 12);
         }
-        
+
+        SecuredMethod action2 = ctx.getBean("act2", SecuredMethod.class);
+        if (action2 instanceof Countable) {
+            Countable c = F.cast(action2);
+            c.inc();
+            Log.print("Count:", c.getCount());
+        }
+        for (int i = 0; i < 3; i++) {
+            action2.securedAccess("admin", "1337", 10);
+            action2.securedAccess("adminas", "7331", 12);
+        }
+
 //        OutputPrinter bean = ctx.getBean(OutputPrinter.class);
 //        Log.print(bean);
 //        bean.printDate(new Date());
