@@ -22,4 +22,8 @@ public abstract class AbstractFibComputerDecorator implements FibComputer {
         return delegate().intermediate(currentIteration, iterations, first, second);
     }
     
+    public long plus(long numb){
+        return delegate().plus(numb);
+    }
+    
 }

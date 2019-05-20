@@ -35,7 +35,7 @@ public class InvocationChainHandlers {
                 chain.invoke(callee, method, args);
                 long stopNanos = t.stopNanos();
 
-                Log.print("Timer: execution took " + stopNanos / 1e6 + "ms");
+                Log.print("Timer: execution took " + stopNanos / 1e6 + "(ms)");
 
                 return null;
             }

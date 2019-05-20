@@ -34,18 +34,18 @@ public class InvocationChainBuilder {
         return new SimpleInvocationChain(invocations.toArray(s -> new Invocation[s]));
     }
     
-    public <I> I toInstance(Class<I> mainInter){
-        return (I) Proxy.newProxyInstance(
+    public <T> T toInstance(Class... inter){
+        return  (T) Proxy.newProxyInstance(
                 this.getClass().getClassLoader(),
-                ArrayOp.asArray(mainInter),
+                ArrayOp.asArray(inter),
                 new InvocationChainProxy(null, this.toChain())
         );
     }
     
-    public <T extends I,I> I toInstance(Class<I> mainInter, T impl){
-        return (I) Proxy.newProxyInstance(
+    public <T> T toInstance(Object impl, Class... inter){
+        return (T) Proxy.newProxyInstance(
                 this.getClass().getClassLoader(),
-                ArrayOp.asArray(mainInter),
+                ArrayOp.asArray(inter),
                 new InvocationChainProxy(impl, this.toChain())
         );
     }

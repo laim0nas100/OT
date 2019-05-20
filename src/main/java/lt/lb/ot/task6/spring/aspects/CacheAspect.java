@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
  */
 @Aspect
 @Component
-@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class CacheAspect {
 
     Cache<Object, Object> cache = CacheBuilder.newBuilder()
@@ -43,7 +43,7 @@ public class CacheAspect {
         Signature sig = jp.getSignature();
         if (sig instanceof MethodSignature) {
             Value<Throwable> th = new Value<>();
-            Object key = getKeySingleton(jp);
+            Object key = getKeyPrototype(jp);
             Object result = cache.get(key, () -> {
                 try {
 
