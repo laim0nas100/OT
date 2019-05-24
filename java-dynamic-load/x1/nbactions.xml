@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-old</actionName>
+            <displayName>old</displayName>
+            <goals>
+                <goal>clean</goal>
+                <goal>install</goal>
+                <goal>"-Dver=old"</goal>
+            </goals>
+        </action>
+    </actions>
