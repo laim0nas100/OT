@@ -34,6 +34,11 @@ public class JarClassLoader extends URLClassLoader {
         return COMMON_LIB_LOADER;
     }
 
+    @Override
+    public Class<?> findClass(String name) throws ClassNotFoundException {
+        return super.findClass(name); //To change body of generated methods, choose Tools | Templates.
+    }
+
     private boolean isLibClass(String className) {
         return (className != null && className.startsWith(PREFIX_COMMON_CLASS));
     }
@@ -53,4 +58,6 @@ public class JarClassLoader extends URLClassLoader {
 
         return super.loadClass(className, resolve);
     }
+    
+    
 }
