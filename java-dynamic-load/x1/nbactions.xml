@@ -6,8 +6,7 @@
             <goals>
                 <goal>clean</goal>
                 <goal>install</goal>
-                <goal>-P</goal>
-                <goal>old</goal>
+                <goal>"-Dver=old"</goal>
             </goals>
         </action>
     </actions>

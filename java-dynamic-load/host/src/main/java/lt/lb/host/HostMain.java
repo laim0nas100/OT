@@ -5,6 +5,7 @@
  */
 package lt.lb.host;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -34,10 +35,11 @@ public class HostMain {
     private static String JAR1_URL = "file:libs/jar1.jar";
     private static String JAR2_URL = "file:libs/jar2.jar";
     private static String X1_OLD_URL = "file:libs/x1-old.jar";
-    private static String X1_CURRENT__URL = "file:libs/x1-current.jar";
+    private static String X1_CURRENT_URL = "file:libs/x1-current.jar";
 
-    private static JarClassLoader getJarLoader(String... jarUrl) throws MalformedURLException {
-        return new JarClassLoader(urls(jarUrl), HostMain.class.getClassLoader());
+    private static ClassLoader getJarLoader(String... jarUrl) throws MalformedURLException {
+//        return new JarClassLoader(urls(jarUrl), HostMain.class.getClassLoader());
+        return new MyClassLoader(urls(jarUrl), HostMain.class.getClassLoader());
     }
     
     private static URL toUrl(String s){
@@ -69,10 +71,10 @@ public class HostMain {
     private static void testCommonClassIsSame() {
 
         try {
-            JarClassLoader jar1Loader = getJarLoader(JAR1_URL);
+            ClassLoader jar1Loader = getJarLoader(JAR1_URL);
             Class<?> classJar1 = jar1Loader.loadClass(COMMOM_CLASS);
 
-            JarClassLoader jar2Loader = getJarLoader(JAR2_URL);
+            ClassLoader jar2Loader = getJarLoader(JAR2_URL);
             Class<?> classJar2 = jar2Loader.loadClass(COMMOM_CLASS);
 
             if (jar1Loader.equals(jar2Loader)) {
@@ -96,13 +98,13 @@ public class HostMain {
     private static void testChildCommonClassConvert() {
 
         try {
-            JarClassLoader jar1Loader = getJarLoader(JAR1_URL);
+            ClassLoader jar1Loader = getJarLoader(JAR1_URL);
             Class<?> classJar1 = jar1Loader.loadClass(JAR1_COMMON_CLASS);
             Method method1 = classJar1.getMethod("getString");
             Object classJar1Obj = classJar1.newInstance();
             System.out.println("string1 before convert:" + method1.invoke(classJar1Obj));
 
-            JarClassLoader jar2Loader = getJarLoader(JAR2_URL);
+            ClassLoader jar2Loader = getJarLoader(JAR2_URL);
             Class<?> classJar2 = jar2Loader.loadClass(JAR2_COMMON_CLASS);
             Method method2 = classJar2.getMethod("getString");
             Object classJar2Obj = classJar2.newInstance();
@@ -124,13 +126,13 @@ public class HostMain {
     private static void testJarSelfClass() {
 
         try {
-            JarClassLoader jar1Loader = getJarLoader(JAR1_URL);
+            ClassLoader jar1Loader = getJarLoader(JAR1_URL);
             Class<?> classJar1 = jar1Loader.loadClass(JAR1_SELF_CLASS);
             Method method1 = classJar1.getMethod("getString");
             Object classJar1Obj = classJar1.newInstance();
             System.out.println(method1.invoke(classJar1Obj));
 
-            JarClassLoader jar2Loader = getJarLoader(JAR2_URL);
+            ClassLoader jar2Loader = getJarLoader(JAR2_URL);
             Class<?> classJar2 = jar2Loader.loadClass(JAR2_SELF_CLASS);
             Method method2 = classJar2.getMethod("getString");
             Object classJar2Obj = classJar2.newInstance();
@@ -169,7 +171,7 @@ public class HostMain {
      */
     public static void testCase1() throws Exception {
         System.out.println("\n\n\n\nTEST CASE 1");
-        JarClassLoader loader = getJarLoader(JAR1_URL);
+        ClassLoader loader = getJarLoader(JAR1_URL);
 
         Class<?> cls = loader.loadClass(JAR1_IMP_CLASS);
 
@@ -184,7 +186,7 @@ public class HostMain {
         System.out.println(newInstance.doCalculation(10));
         System.out.println(newInstance.getVersionString());
 
-        loader.close();
+        closeLoaders(loader);
 
     }
 
@@ -198,14 +200,14 @@ public class HostMain {
      */
     public static void testCase2() throws Exception {
         System.out.println("\n\n\n\nTEST CASE 2");
-        JarClassLoader loader = getJarLoader(JAR1_URL);
+        ClassLoader loader = getJarLoader(JAR1_URL);
 
         Class<?> cls = loader.loadClass(JAR1_IMP_CLASS);
 
         SharedInterface instance = (SharedInterface) cls.newInstance();
 
         //senas classloader uždatomas
-        loader.close();
+        closeLoaders(loader);
 
         System.out.println(instance.doCalculation(10));
         System.out.println(instance.getVersionString());
@@ -221,7 +223,7 @@ public class HostMain {
         System.out.println(instance.doCalculation(10));
         System.out.println(instance.getVersionString());
 
-        loader.close();
+        closeLoaders(loader);
 
     }
 
@@ -234,7 +236,7 @@ public class HostMain {
      */
     public static void testCase3() throws Exception {
         System.out.println("\n\n\n\nTEST CASE 3");
-        JarClassLoader[] loader = new JarClassLoader[]{getJarLoader(JAR1_URL), getJarLoader(JAR2_URL)};
+        ClassLoader[] loader = new ClassLoader[]{getJarLoader(JAR1_URL), getJarLoader(JAR2_URL)};
 
         SharedInterface instance1 = (SharedInterface) loader[0].loadClass(JAR1_IMP_CLASS).newInstance();
 
@@ -246,9 +248,7 @@ public class HostMain {
         System.out.println(instance2.doCalculation(instance1.doCalculation(10)));
         System.out.println(instance1.getVersionString() + " " + instance2.getVersionString());
 
-        for (JarClassLoader l : loader) {
-            l.close();
-        }
+        closeLoaders(loader);
     }
 
     /**
@@ -260,7 +260,7 @@ public class HostMain {
      */
     public static void testCase4() throws Exception {
         System.out.println("\n\n\n\nTEST CASE 4");
-        ClassLoader[] loader = new ClassLoader[]{getChildJarLoader(JAR1_URL), getJarLoader(JAR2_URL, X1_CURRENT__URL)};
+        ClassLoader[] loader = new ClassLoader[]{getChildJarLoader(JAR1_URL), getChildJarLoader(JAR2_URL, X1_OLD_URL)};
 
         SharedInterface instance1 = (SharedInterface) loader[0].loadClass(JAR1_VER_CLASS).newInstance();
 
@@ -276,5 +276,13 @@ public class HostMain {
         System.out.println(instance2.doCalculation(instance1.doCalculation(10)));
         System.out.println(instance1.getVersionString() + " " + instance2.getVersionString());
 
+    }
+    
+    public static void closeLoaders(ClassLoader...loaders) throws IOException{
+        for(ClassLoader loader:loaders){
+            if(loader instanceof Closeable){
+                ((Closeable) loader).close();
+            }
+        }
     }
 }

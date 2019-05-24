@@ -15,12 +15,12 @@ public class ChildImp implements SharedInterface{
 
     @Override
     public long doCalculation(long numb) {
-        return numb * 2 + 5;
+        return numb * 5 + 2;
     }
 
     @Override
     public String getVersionString() {
-        return "Child VERSION old";
+        return "Child VERSION new";
     }
     
 }
