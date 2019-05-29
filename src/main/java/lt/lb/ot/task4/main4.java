@@ -45,16 +45,22 @@ public class main4 {
         methodListener = new TrampolineComputer(methodListener);
         methodListener = new FibTimerComputerDecorator(methodListener);
 
-        //change method behaviour, cache results for specific method
-        FibComputer defFib = new IterativeDecorator(new DefaultFibComputer());
-        FibComputer cached = (FibComputer) Proxy.newProxyInstance(classLoader, ArrayOp.asArray(FibComputer.class), new GenericCachingProxy(defFib));
-        cached = new FibTimerComputerDecorator(cached);
+        
+        
+        
+        
+        
+        
+        
 
         
         
-        
-        
-        
+        FibComputer comp = new DecoratorMaker(new DefaultFibComputer(), FibComputer.class)
+                .decorate(new MemoizerDecorator())
+                .decorate(new TrampolineDecoratorDetached())
+                .decorate(new PlusDecorator())
+                .resolveInstance();
+
         
         //NEW
         MethodDecorator dec = new MethodDecorator(args -> {
@@ -69,20 +75,12 @@ public class main4 {
                 .with(InvocationChainHandlers.timerInvocation())
                 .with(dec.toInvocation())
                 .with(InvocationChainHandlers.finalInvocation());
-
         
-        
-        FibComputer comp = new DecoratorMaker(new DefaultFibComputer(), FibComputer.class)
-                .decorate(new MemoizerDecorator())
-                .decorate(new TrampolineDecoratorDetached())
-                .decorate(new PlusDecorator())
-                .resolveInstance();
-
         
         FibComputer toInstance = chainBuilder.toInstance(comp, FibComputer.class);
         
         
-        Log.print(FibComputer.computer(toInstance, 2));
+        Log.print(FibComputer.computer(toInstance, 20000));
         Log.print(toInstance.plus(3));
         Log.close();
 

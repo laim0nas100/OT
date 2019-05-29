@@ -101,10 +101,10 @@ public class DecoratorMaker {
                     if (next.decMap.containsKey(desc)) {
                         Tuple<DecoratorContext, Method> get = next.decMap.get(desc);
                         Object[] newArgs = ArrayOp.addAt(args, 0, get.g1);
-                        Log.println("", "Proceed dec", get.g2, next.decoratorObject, "with", Arrays.asList(newArgs));
+//                        Log.println("", "Proceed dec", get.g2, next.decoratorObject, "with", Arrays.asList(newArgs));
                         return F.unsafeCall(() -> F.cast(get.g2.invoke(next.decoratorObject, newArgs)));
                     } else {
-                        Log.println("", "Proceed def", next.defMap.get(desc), next.defaultObject, "with", Arrays.asList(args));
+//                        Log.println("", "Proceed def", next.defMap.get(desc), next.defaultObject, "with", Arrays.asList(args));
                         return F.unsafeCall(() -> F.cast(next.defMap.get(desc).invoke(next.defaultObject, args)));
                     }
 
@@ -127,7 +127,7 @@ public class DecoratorMaker {
                         if (tuple.g1 != null && node.next.instance != null) {
                             invokeFound = true;
                             Object[] newArgs = ArrayOp.addAt(args, 0, tuple.g1);
-                            Log.println("", "Invoke dec", decoratedMethod, node.decoratorObject, "with", Arrays.asList(newArgs));
+//                            Log.println("", "Invoke dec", decoratedMethod, node.decoratorObject, "with", Arrays.asList(newArgs));
                             return decoratedMethod.invoke(node.decoratorObject, newArgs);
                         }
 
@@ -139,7 +139,7 @@ public class DecoratorMaker {
                 }
 
                 if (!invokeFound) {
-                    Log.println("", "Invoke", method, me.defaultObject, "with", Arrays.asList(args));
+//                    Log.println("", "Invoke", method, me.defaultObject, "with", Arrays.asList(args));
                     return method.invoke(me.defaultObject, args);
                 }
                 throw new Error("Unreachable was reached");
