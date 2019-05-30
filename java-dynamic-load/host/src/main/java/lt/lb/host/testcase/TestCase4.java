@@ -38,7 +38,7 @@ public class TestCase4 {
      */
     public static void main(String... args) throws Exception {
         System.out.println("TEST CASE 4");
-        ClassLoader[] loader = new ClassLoader[]{getChildJarLoader(JAR1_URL), getChildJarLoader(JAR1_URL, X1_OLD_URL), getChildJarLoader(JAR2_URL), getChildJarLoader(JAR2_URL, X1_OLD_URL)};
+        ClassLoader[] loader = new ClassLoader[]{getChildJarLoader(JAR1_URL), getChildJarLoader(JAR1_URL, X1_OLD_URL), getChildJarLoader(JAR2_URL, X1_OLD_URL), getChildJarLoader(JAR2_URL)};
 
         for (int i = 0; i < 4; i += 2) {
             String toLoad = i < 2 ? JAR1_VER_CLASS : JAR2_VER_CLASS;
