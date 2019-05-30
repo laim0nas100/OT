@@ -6,7 +6,7 @@
 package lt.lb.ot.task4.proxy.relfdec;
 
 import java.util.function.Function;
-import lt.lb.commons.SafeOpt.UnsafeFunction;
+import lt.lb.commons.func.unchecked.UnsafeFunction;
 import lt.lb.ot.task4.proxy.chain.Invocation;
 
 /**

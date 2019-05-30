@@ -12,7 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import lt.lb.commons.Log;
-import lt.lb.commons.SafeOpt.UnsafeFunction;
+import lt.lb.commons.func.unchecked.UnsafeFunction;
 import lt.lb.commons.reflect.Refl;
 import lt.lb.ot.task4.proxy.chain.InvocationChain;
 

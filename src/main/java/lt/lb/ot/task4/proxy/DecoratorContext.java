@@ -3,12 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package lt.lb.ot.task4;
+package lt.lb.ot.task4.proxy;
 
 /**
  *
- * @author Laimonas Beniušis
+ * @author Lemmin
  */
-public interface ExtFibComputer extends FibComputer, ExtraMethods {
-
+public interface DecoratorContext {
+    
+    public <T> T proceed(Object...args);
+    
 }

@@ -21,6 +21,10 @@ public class DefaultFibComputer implements FibComputer {
         }
         return intermediate(currentIteration + 1, iterations, first.add(second), first);
     }
+    
+    public long plus(long numb){
+        return numb + 2;
+    }
 
 }
 

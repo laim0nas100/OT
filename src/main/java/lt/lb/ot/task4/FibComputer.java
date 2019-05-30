@@ -13,10 +13,12 @@ import java.math.BigInteger;
  */
 public interface FibComputer {
 
-    public static BigInteger computer(FibComputer cp, long iterations){
+    public static BigInteger computer(FibComputer cp, long iterations) {
         return cp.intermediate(0, iterations, BigInteger.ONE, BigInteger.ONE);
     }
 
     public BigInteger intermediate(long currentIteration, long iterations, BigInteger first, BigInteger second);
-}
 
+    public long plus(long numb);
+
+}

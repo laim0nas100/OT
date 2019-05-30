@@ -5,12 +5,16 @@
  */
 package lt.lb.ot.task4;
 
+import lt.lb.ot.task4.proxy.DecoratorContext;
+
 /**
  *
- * @author Laimonas Beniušis
+ * @author Lemmin
  */
-public interface ExtraMethods {
-    public String getString();
+public class PlusDecorator {
     
-    public String catString();
+    public long plus(DecoratorContext ctx, long numb){
+        return ctx.proceed(numb * 2);
+    }
+    
 }
