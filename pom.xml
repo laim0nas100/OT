@@ -9,7 +9,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <spring.version>4.3.24.RELEASE</spring.version>
+        <spring.version>5.2.22.RELEASE</spring.version>
         
 <!--        <commons-lb.version>ec8aad0451b0634007279d798687ebb4f9a3b25c</commons-lb.version>
         <commons-lb.dir>com.github.laim0nas100.Commons</commons-lb.dir>-->
